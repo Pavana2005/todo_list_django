@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>TaskFlow - My Todos</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f8f7ff;
+            color: #191b35;
+        }
+
+        .navbar {
+            height: 60px;
+            background: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 9%;
+            border-bottom: 1px solid #eeeeF8;
+        }
+
+        .logo {
+            margin-left: 100px;
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+        .nav-links {
+            margin-right: 600px;
+            display: flex;
+            gap: 25px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-size: 13px;
+            padding: 10px 15px;
+            align-items: center;
+        }
+
+        .nav-links .selected {
+            background: #e9eaff;
+            border-radius: 7px;
+        }
+
+        .container {
+            width: 75%;
+            margin: 35px auto;
+        }
+
+        .focus {
+            color: #5146ee;
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        h1 {
+            font-size: 30px;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: #77778a;
+            font-size: 13px;
+        }
+
+        .add-box {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .add-box input {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            outline: none;
+            background: #f1f1ff;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        button {
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .add-btn {
+            background: #5146ee;
+            color: white;
+            padding: 12px 22px;
+        }
+
+        .task-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 25px 0 15px;
+        }
+
+        .task-heading h3 {
+            font-size: 16px;
+        }
+
+        .count {
+            background: #e6e8ff;
+            color: #333b75;
+            font-size: 11px;
+            padding: 4px 9px;
+            border-radius: 10px;
+        }
+
+        .filters {
+            background: #f0f0ff;
+            padding: 5px;
+            border-radius: 8px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .filters a {
+            text-decoration: none;
+            color: #555;
+            padding: 7px 12px;
+            font-size: 12px;
+            border-radius: 6px;
+        }
+
+        .filters .active {
+            background: white;
+            color: #252547;
+            box-shadow: 0 1px 5px #ddd;
+        }
+
+        .task-card {
+            background: white;
+            padding: 16px;
+            border-radius: 11px;
+            margin-bottom: 7px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .task-card p {
+            font-size: 13px;
+        }
+
+        .task-card.completed {
+            background: #f1f1ff;
+        }
+
+        .task-card.completed p {
+            color: #999;
+            text-decoration: line-through;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .actions a {
+            text-decoration: none;
+            font-size: 12px;
+            color: #656579;
+        }
+
+        .complete-btn {
+            color: #5146ee;
+            background: #eeeeff;
+            padding: 7px 10px;
+            font-size: 11px;
+        }
+
+        .delete-btn {
+            color: #e05252;
+            background: #fff0f0;
+            padding: 7px 10px;
+            font-size: 11px;
+        }
+
+        .empty {
+            background: white;
+            text-align: center;
+            padding: 30px;
+            color: #888;
+            border-radius: 10px;
+            font-size: 13px;
+        }
+
+       
+    </style>
+</head>
+
+<body>
+    <div class="navbar">
+        <div class="logo">TaskFlow</div>
+        <div class="nav-links">
+            <a href="{% url 'task' %}" class="selected">Today</a>
+            <a href="#">Upcoming</a>
+        </div>
+    </div>
+    <div class="container">
+        <p class="focus">
+            WORKSPACE FOCUS &nbsp; ● &nbsp;
+            <span id="currentDate"></span>
+        </p>
+        <h1>My Todos</h1>
+        <p class="subtitle">Stay organized. Get things done.</p>
+        <form method="POST" class="add-box">
+            {% csrf_token %}
+            <input type="text" name="title" placeholder="Enter your todo..." required>
+            <button type="submit" class="add-btn">
+                + Add Todo
+            </button>
+        </form>
+        <div class="task-heading">
+            <h3>
+                Tasks
+                <span class="count">
+                    {{ total }} Total • {{ completed_count }} Completed
+                </span>
+            </h3>
+            <div class="filters">
+                <a href="{% url 'task' %}?status=all" class="{% if status == 'all' %}active{% endif %}">
+                    All {{ total }}
+                </a>
+                <a href="{% url 'task' %}?status=active" class="{% if status == 'active' %}active{% endif %}">
+                    Active {{ active_count }}
+                </a>
+                <a href="{% url 'task' %}?status=completed" class="{% if status == 'completed' %}active{% endif %}">
+                    Completed {{ completed_count }}
+                </a>
+            </div>
+        </div>
+        {% for t in tasks %}
+        <div class="task-card {% if t.completed %}completed{% endif %}">
+            <p>{{ t.title }}</p>
+            <div class="actions">
+                <form method="POST" action="{% url 'complete' t.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="complete-btn">
+                        {% if t.completed %}
+                        Undo
+                        {% else %}
+                        Complete
+                        {% endif %}
+                    </button>
+                </form>
+                <a href="{% url 'update' t.id %}">
+                    Edit
+                </a>
+                <form method="POST" action="{% url 'delete' t.id %}">
+
+                    {% csrf_token %}
+                    <button type="submit" class="delete-btn">
+                        Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty">
+            No tasks found. Add your first todo!
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+
+        let today = new Date();
+        let options = {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric'
+        };
+        document.getElementById("currentDate").innerHTML =
+            today.toLocaleDateString('en-US', options);
+
+    </script>
+</body>
+</html>
